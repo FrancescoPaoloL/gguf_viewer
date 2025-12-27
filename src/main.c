@@ -1,7 +1,5 @@
 #include <stdio.h>
-
-// forward declaration
-void inspect_gguf(const char *filename);
+#include "../include/inspect.h"
 
 int main(int argc, char **argv) {
     if (argc < 2) {

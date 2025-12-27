@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
+#include "../include/inspect.h"
 
 // Read little-endian values
 static uint64_t read_u64_le(FILE *f) {
@@ -11,11 +12,13 @@ static uint64_t read_u64_le(FILE *f) {
     return v;
 }
 
+/*
 static uint32_t read_u32_le(FILE *f) {
     uint32_t v;
     fread(&v, sizeof(v), 1, f);
     return v;
 }
+*/
 
 static void print_bytes(FILE *f, size_t n) {
     for (size_t i = 0; i < n; i++) {
