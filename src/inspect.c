@@ -5,6 +5,8 @@
 #include <inttypes.h>
 #include "../include/inspect.h"
 
+#define HEX_DUMP_BYTES 512
+
 // Read little-endian values
 static uint64_t read_u64_le(FILE *f) {
     uint64_t v;
@@ -24,6 +26,7 @@ static uint32_t read_u32_le(FILE *f) {
     return v;
 }
 
+/*
 static void print_bytes(FILE *f, size_t n) {
     for (size_t i = 0; i < n; i++) {
         uint8_t b;
@@ -36,6 +39,39 @@ static void print_bytes(FILE *f, size_t n) {
     }
     printf("\n");
 }
+*/
+
+static void print_bytes(FILE *f, size_t n) {
+    uint8_t row[16];
+    size_t remaining = n;
+
+    while (remaining > 0) {
+        size_t to_read = remaining < 16 ? remaining : 16;
+        size_t got = fread(row, 1, to_read, f);
+        if (got == 0) {
+            fprintf(stderr, "\nerror: unexpected end of file\n");
+            return;
+        }
+
+        // hex
+        for (size_t i = 0; i < 16; i++) {
+            if (i < got) printf("%02x ", row[i]);
+            else         printf("   ");  // padding for short last row
+        }
+
+        printf(" |");
+
+        // ascii
+        for (size_t i = 0; i < got; i++) {
+            printf("%c", (row[i] >= 0x20 && row[i] < 0x7f) ? row[i] : '.');
+        }
+
+        printf("|\n");
+        remaining -= got;
+    }
+    printf("\n");
+}
+
 
 void inspect_gguf(const char *filename) {
     FILE *f = fopen(filename, "rb");
@@ -73,7 +109,7 @@ void inspect_gguf(const char *filename) {
     printf("KV pairs: %" PRIu64 "\n", num_kv);
 
     printf("\nHex dump of next 256 bytes (start of metadata):\n");
-    print_bytes(f, 256);
+    print_bytes(f, HEX_DUMP_BYTES);
 
     fclose(f);
 }
